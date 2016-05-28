@@ -1,5 +1,5 @@
 import requests
-import nosbot.NewsItem
+import NewsItem
 
 class NewsDataSource:
 
@@ -13,7 +13,7 @@ class NewsDataSource:
 
         json = r.json()
         for entry in json['items']:
-            self.cachedNews.append(nosbot.NewsItem.NewsItem(entry))
+            self.cachedNews.append(NewsItem.NewsItem(entry))
 
 if __name__ == '__main__':
     s = NewsDataSource('http://s.nos.nl/extern/nieuws.json')

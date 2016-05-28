@@ -3,6 +3,7 @@ import asyncio
 import telepot
 from telepot.async.delegate import per_chat_id, create_open
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
+import NewsDataSource
 
 class NosBot(telepot.async.helper.ChatHandler):
     def __init__(self, seed_tuple, timeout):
@@ -37,9 +38,16 @@ class NosBot(telepot.async.helper.ChatHandler):
       if query_data == 'dailyupdates':
         yield from self.sender.sendMessage("Got it! \U0001f60d"
                                            "\nLet\'s start with the current headlines!")
+        items = news_source.cachedNews;
+        for x in range(0, 3):
+          item = items[x]
+          yield from self.sender.sendMessage("*{}*\n{}".format(item.title, item.description), parse_mode='Markdown')
       
       elif query_data == 'noupdates':
         yield from self.sender.sendMessage("Ok, I\'ll keep my mouth shut untill you ask me! \U0001f64a")
+
+news_source = NewsDataSource.NewsDataSource('http://s.nos.nl/extern/nieuws.json')
+news_source.update_news_cache()
 
 TOKEN = sys.argv[1]  # get token from command-line
 
