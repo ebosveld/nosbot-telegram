@@ -1,4 +1,6 @@
 import datetime
+from asyncio import Lock
+
 
 class NewsItem:
 
@@ -10,6 +12,9 @@ class NewsItem:
         self.publish_time = datetime.datetime.strptime(json['published_at'], '%Y-%m-%dT%H:%M:%S+%f')
         self.last_modification_time = datetime.datetime.strptime(json['modified_at'], '%Y-%m-%dT%H:%M:%S+%f')
 
+        self.interesting_counter_lock = Lock()
+        self.interesting_counter = 0
+
         if 'image' in json:
             self.main_image_url = json['image']['formats'][0]['url']['jpg']
 
@@ -19,19 +24,23 @@ class NewsItem:
         for i in json['categories']:
             self.categories.append(NewsCategory(i))
 
-        self.parseContentJsonChildren(json['content']['children'])
+        self._parse_content_json_children(json['content']['children'])
 
+    def mark_interesting(self):
+        yield from self.interesting_counter_lock
+        self.interesting_counter += 1
+        self.interesting_counter_lock.release()
 
-    def parseContentJsonChildren(self, json):
+    def _parse_content_json_children(self, json):
 
         for child in json:
             childType = child['type']
             if childType == 'text' or childType == 'title':
                 self.content.append(NewsItemContent(child))
             elif childType == 'container':
-                self.parseContentJsonChildren(child['children'])
+                self._parse_content_json_children(child['children'])
             elif childType == 'external_content':
-                self.analizeExternalContent(child['external_content'])
+                self._read_external_content(child['external_content'])
             elif childType == 'link_container':
                 pass  # Do nothing really
             elif childType == 'video' or childType == 'image' or childType == 'quote' or childType == 'audio' or childType == 'carousel':
@@ -42,16 +51,16 @@ class NewsItem:
                 print('Unhandled content type ', childType)
                 return
 
-    def analizeExternalContent(self, json):
+    def _read_external_content(self, json):
 
-        contentType = json['content_type']
+        content_type = json['content_type']
 
-        if contentType == 'twitter':
+        if content_type == 'twitter':
             self.content.append(NewsItemContent({'type': 'tweet', 'url': json['url']}))
-        elif contentType == 'youtube':
+        elif content_type == 'youtube':
             self.content.append(NewsItemContent({'type': 'youtube', 'url': json['url']}))
         else:
-            print('External content type', contentType, 'not currently supported')
+            print('External content type', content_type, 'not currently supported')
             print(json)
 
 
