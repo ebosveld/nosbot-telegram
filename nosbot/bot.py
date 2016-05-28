@@ -19,7 +19,7 @@ class NosBot(telepot.async.helper.ChatHandler):
         
         if msg['text'] == '/start':
           markup = InlineKeyboardMarkup(inline_keyboard=[
-                  [InlineKeyboardButton(text='Yes, why not?', callback_data='dailyupdates')],
+                  [InlineKeyboardButton(text='Yeah, why not?', callback_data='dailyupdates')],
                   [InlineKeyboardButton(text='No thanks!', callback_data='noupdates')]
               ])
 
@@ -35,8 +35,8 @@ class NosBot(telepot.async.helper.ChatHandler):
       print ('Callback Query:', query_id, from_id, query_data)
       
       if query_data == 'dailyupdates':
-        yield from self.sender.sendMessage("Got it! \U0001f60d",
-                                           "Let\'s start with the current headlines!")
+        yield from self.sender.sendMessage("Got it! \U0001f60d"
+                                           "\nLet\'s start with the current headlines!")
       
       elif query_data == 'noupdates':
         yield from self.sender.sendMessage("Ok, I\'ll keep my mouth shut untill you ask me! \U0001f64a")
