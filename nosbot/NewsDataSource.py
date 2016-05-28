@@ -36,7 +36,7 @@ class NewsDataSource:
 
         json = r.json()
         for entry in json['items']:
-            self.cached_news.append(nosbot.NewsItem.NewsItem(entry))
+            self.cached_news.append(NewsItem.NewsItem(entry))
 
 if __name__ == '__main__':
     s = NewsDataSource('http://s.nos.nl/extern/nieuws.json')
